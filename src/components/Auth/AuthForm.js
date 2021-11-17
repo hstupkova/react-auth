@@ -48,28 +48,32 @@ const AuthForm = () => {
       headers: {
         'Content-Type': 'application/json',
       },
-    }).then((res) => {
-      setIsLoading(false);
+    })
+      .then((res) => {
+        setIsLoading(false);
 
-      if (res.ok) {
-        return res.json();
-      } else {
-        return res.json().then((data) => {
-          let errorMessage = 'Authentication failed!';
-          /* if (data && data.error && data.error.message) {
+        if (res.ok) {
+          return res.json();
+        } else {
+          return res.json().then((data) => {
+            let errorMessage = 'Authentication failed!';
+            /* if (data && data.error && data.error.message) {
             errorMessage = data.error.message;
           } */
-          throw new Error(errorMessage);
-        });
-      }
-    })
-    .then(data => {
-      authCtx.login(data.idToken);
-      history.replace('/');
-    })
-    .catch(err => {
-      alert(err.message);
-    });
+            throw new Error(errorMessage);
+          });
+        }
+      })
+      .then((data) => {
+        const expirationTime = new Date(
+          new Date().getTime() + +data.expiresIn * 1000,
+        );
+        authCtx.login(data.idToken, expirationTime.toISOString());
+        history.replace('/');
+      })
+      .catch((err) => {
+        alert(err.message);
+      });
   };
 
   return (
